@@ -1,10 +1,10 @@
 import { jwtAdapter } from "../../config/jwt.adapter";
-
 import { bcryptAdapter } from "../../config/bcrypt.adapter";
 import { RegisteruserDto } from "../../domain/dtos/users/register-user-dto";
 import { UserModel } from "../../data/mongo/models/user-model";
 import { UserEntity } from "../../domain/entities/user.entity";
 import { LoginuserDto } from "../../domain/dtos/users/login-user-dto";
+import { CustomError } from "../../domain/error/custom.error";
 /**
  * Clase que representa el servicio de autenticación.
  */
@@ -17,7 +17,7 @@ export class AuthService {
     const existeUser = await UserModel.findOne({
       email: registeruserDto.email,
     });
-    if (existeUser) throw Error("El usuario ya existe");
+    if(existeUser)  throw CustomError.badRequest("El usuario ya existe",)
 
     try {
       const user = await UserModel.create(registeruserDto);
@@ -31,7 +31,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
       });
-      if (!token) throw Error("Error al generar el token");
+      if (!token) throw CustomError.internalServerError("Error al generar el token")
 
       return {
         user: userEntity,
@@ -39,26 +39,27 @@ export class AuthService {
       };
     } catch (error) {
       console.log(error);
-      throw Error(`${error}`);
+      throw CustomError.badRequest(`${error}`)
+
     }
   }
 
   public async loginUser(loginuserDto: LoginuserDto) {
     const user = await UserModel.findOne({ email: loginuserDto.email });
-    if (!user) throw Error("El usuario no existe");
+    if (!user)   throw CustomError.badRequest("El usuario no existe")
 
     const passwordValid = bcryptAdapter.compare(
       loginuserDto.password,
       user.password
     );
-    if (!passwordValid) throw Error("La contraseña es incorrecta");
+    if (!passwordValid) throw CustomError.badRequest("Contraseña incorrecta")
 
     const { password, ...userEntity } = UserEntity.fromObject(user);
     const token = await jwtAdapter.generateToken({
       id: user.id,
       email: user.email,
     });
-    if (!token) throw Error("Error al generar el token");
+    if (!token) throw CustomError.internalServerError("Error al generar el token")
 
     return {
       user: userEntity,
