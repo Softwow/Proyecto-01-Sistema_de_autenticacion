@@ -3,17 +3,17 @@ import { regularExps } from "../../../config/regular";
 export class LoginuserDto{
 
     private constructor(
-        public email: string,
+        public correo: string,
         public password: string,
        
     ) {}
 
     static create(object:{[key:string]:any}): [string?, LoginuserDto?]{
-        const {  email, password } = object;
+        const {  correo, password } = object;
        
-        if (!email) return ['email is required',undefined];
-        if (!regularExps.email.test(email)) return ['email is invalid',undefined];
+        if (!correo) return ['correo is required',undefined];
+        if (!regularExps.correo.test(correo)) return ['correo is invalid',undefined];
         if (!password) return ['password is required',undefined];
-        return [undefined, new LoginuserDto(email,password)]
+        return [undefined, new LoginuserDto(correo,password)]
     }
 }

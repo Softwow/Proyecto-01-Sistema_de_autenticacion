@@ -15,7 +15,7 @@ export class AuthService {
 
   public async registerUser(registeruserDto: RegisteruserDto) {
     const existeUser = await UserModel.findOne({
-      email: registeruserDto.email,
+      correo: registeruserDto.correo,
     });
     if(existeUser)  throw CustomError.badRequest("El usuario ya existe",)
 
@@ -29,7 +29,7 @@ export class AuthService {
 
       const token = await jwtAdapter.generateToken({
         id: user.id,
-        email: user.email,
+        correo: user.correo,
       });
       if (!token) throw CustomError.internalServerError("Error al generar el token")
 
@@ -45,7 +45,7 @@ export class AuthService {
   }
 
   public async loginUser(loginuserDto: LoginuserDto) {
-    const user = await UserModel.findOne({ email: loginuserDto.email });
+    const user = await UserModel.findOne({ correo: loginuserDto.correo });
     if (!user)   throw CustomError.badRequest("El usuario no existe")
 
     const passwordValid = bcryptAdapter.compare(
@@ -57,7 +57,7 @@ export class AuthService {
     const { password, ...userEntity } = UserEntity.fromObject(user);
     const token = await jwtAdapter.generateToken({
       id: user.id,
-      email: user.email,
+      correo: user.correo,
     });
     if (!token) throw CustomError.internalServerError("Error al generar el token")
 
@@ -65,5 +65,33 @@ export class AuthService {
       user: userEntity,
       token: token,
     };
+  }
+
+  public async registerGoogle(registerUserDto: RegisteruserDto) {
+    const existeUser = await UserModel.findOne({ correo: registerUserDto.correo });
+    if (existeUser) throw CustomError.badRequest("El usuario ya existe");
+
+    try {
+      const user = await UserModel.create(registerUserDto);
+      user.password = bcryptAdapter.hash(registerUserDto.password);
+
+      await user.save();
+
+      const { password, ...userEntity } = UserEntity.fromObject(user);
+
+      const token = await jwtAdapter.generateToken({
+        id: user.id,
+        correo: user.correo,
+      });
+      if (!token) throw CustomError.internalServerError("Error al generar el token");
+
+      return {
+        user: userEntity,
+        token: token,
+      };
+    } catch (error) {
+      console.error(error);
+      throw CustomError.badRequest(`${error}`);
+    }
   }
 }

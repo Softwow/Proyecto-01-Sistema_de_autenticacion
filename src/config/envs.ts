@@ -5,6 +5,9 @@ import { get } from 'env-var';
 /**
  * Configuration object for environment variables.
  */
+/**
+ * Configuration options for the application environment.
+ */
 export const envs = {
 
   /**
@@ -22,9 +25,20 @@ export const envs = {
    */
   DB_NAME: get('DB_NAME').required().asString(),
 
-  JWT_SECRET : get('JWT_SECRET').required().asString(),
+  /**
+   * The secret key for JSON Web Token (JWT) encryption.
+   */
+  JWT_SECRET: get('JWT_SECRET').required().asString(),
 
- 
+  /**
+   * The URL for logging in with Google.
+   */
+  GOOGLECLIENTE: get('GOOGLECLIENTE').required().asString(),
+  
+  /**
+   * The secret key for Google API authentication.
+   */
+  GOOGLESECRECT: get('GOOGLESECRECT').required().asString(),
 
 }
 
