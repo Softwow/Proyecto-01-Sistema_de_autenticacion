@@ -15,7 +15,7 @@ export class GoogleAuthenticator {
         audience: process.env.GOOGLECLIENTE,
       });
 
-      const { name, email, picture } = ticket.getPayload() as TokenPayload;
+      const { name, email } = ticket.getPayload() as TokenPayload;
 
       return {
         nombre: name ?? '',

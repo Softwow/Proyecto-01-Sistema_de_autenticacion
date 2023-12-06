@@ -16,9 +16,10 @@ export  class authGoogleController{
     
         try {
           const { nombre, correo } = await credencialGoogle.verifyCredencial(id_token)
+          console.log(nombre, correo);
     
-          // Buscar usuario en la base de datos
-          let usuario = await UserModel.findOne({ correo: correo });
+          
+          let usuario = await UserModel.findOne({ correo: correo }); // null && null
     
           // Validar si el usuario existe
           if (!usuario) {
@@ -46,6 +47,7 @@ export  class authGoogleController{
             token,
           });
         } catch (err) {
+          console.log(err);
           res.status(400).json({
             msg: 'Token de Google no válido',
             err,
